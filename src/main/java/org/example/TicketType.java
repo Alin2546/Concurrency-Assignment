@@ -18,7 +18,9 @@ public enum TicketType {
 
     private final String ticketType;
 
-
+    /**
+     * @return ticket type based on number generated [1,5]
+     */
     static TicketType generateRandom() {
         Random random = new Random();
         int randomNumber = random.nextInt(5) + 1;

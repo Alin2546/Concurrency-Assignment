@@ -1,31 +1,33 @@
 package org.example;
 
-import lombok.AllArgsConstructor;
+
 
 
 public class FestivalStatisticsThread extends Thread {
-    private FestivalGate festivalGate;
+    /**
+     * Counting ticket types and number of attendees
+     */
+    private final FestivalGate festivalGate;
     private int countFull;
     private int countFree;
     private int countVip;
     private int countOneDay;
     private int countOneDayVip;
+    private int countAttendees;
 
 
     FestivalStatisticsThread(FestivalGate festivalGate) {
         this.festivalGate = festivalGate;
     }
 
-    @Override
-    public void run() {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    /**
+     * Gets the stats from the Gate queue , prints them and in the final it clears the queue
+     */
+    void getStats() {
         if (!(festivalGate.ticketTypeList.isEmpty())) {
-            System.out.println(festivalGate.ticketTypeList.size() + " people entered");
+
             festivalGate.ticketTypeList.forEach(s -> {
+                this.countAttendees++;
                 switch (s.getTicketType()) {
                     case "full" -> countFull++;
                     case "full-vip" -> countVip++;
@@ -34,14 +36,28 @@ public class FestivalStatisticsThread extends Thread {
                     case "one-day-vip" -> countOneDayVip++;
                 }
             });
-            System.out.println(countFull + " people have full tickets");
-            System.out.println(countVip + " people have full tickets");
-            System.out.println(countFree + " people have free passes");
-            System.out.println(countOneDay + " people have full tickets");
-            System.out.println(countOneDayVip + " people have full tickets");
-
+            System.out.println(this.countAttendees + " people entered");
+            System.out.println(this.countFull + " people have full tickets");
+            System.out.println(this.countFree + " people have free passes");
+            System.out.println(this.countVip + " people have full VIP passes");
+            System.out.println(this.countOneDay + " people have one-day passes");
+            System.out.println(this.countOneDayVip + " people have one-day VIP passes");
         }
+        festivalGate.ticketTypeList.clear();
+    }
 
-
+    /**
+     * Calling the {@code getStats} every 5 seconds
+     */
+    @Override
+    public void run() {
+        for (var i = 0; i < 100; i++) {
+            try {
+                getStats();
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
